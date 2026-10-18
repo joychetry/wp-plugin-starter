@@ -8,7 +8,17 @@ const PHP_ERROR =
 	/<b>(Fatal error|Parse error|Warning|Notice|Deprecated)<\/b>:/;
 
 async function visit( page, path ) {
-	const response = await page.goto( path );
+	let response = await page.goto( path );
+	// Playground's auto-login does not always fire (it did not on CI), so log in by hand.
+	if ( page.url().includes( '/wp-login.php' ) ) {
+		await page.fill( '#user_login', 'admin' );
+		await page.fill( '#user_pass', 'password' );
+		await page.click( '#wp-submit' );
+		await page.waitForURL(
+			( url ) => ! url.pathname.endsWith( '/wp-login.php' )
+		);
+		response = await page.goto( path );
+	}
 	expect( response.status() ).toBeLessThan( 400 );
 	expect( await page.content() ).not.toMatch( PHP_ERROR );
 }

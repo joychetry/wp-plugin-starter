@@ -89,6 +89,10 @@ final class Plugin {
 		add_action( 'rest_api_init', fn() => ( new Rest\SettingsController( $this->settings ) )->register_routes() );
 		add_action( 'wp_abilities_api_categories_init', array( self::class, 'register_ability_category' ) );
 
+		if ( is_admin() ) {
+			( new Admin\Page( $this ) )->register();
+		}
+
 		foreach ( $this->modules as $id => $module ) {
 			if ( $module->is_enabled( $this->settings ) ) {
 				$module->register();

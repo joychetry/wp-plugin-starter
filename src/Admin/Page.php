@@ -78,6 +78,7 @@ final class Page {
 
 		wp_enqueue_script( 'wps-admin', WPS_URL . 'build/admin.js', $asset['dependencies'], $asset['version'], true );
 		wp_enqueue_style( 'wps-admin', WPS_URL . 'build/admin.css', array( 'wp-components' ), $asset['version'] );
+		wp_style_add_data( 'wps-admin', 'rtl', 'replace' );
 		wp_set_script_translations( 'wps-admin', 'wp-plugin-starter' );
 
 		$modules = array();

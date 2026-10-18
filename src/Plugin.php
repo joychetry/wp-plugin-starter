@@ -19,7 +19,14 @@ final class Plugin {
 	 *
 	 * @var list<class-string<Module>>
 	 */
-	public const MODULES = array();
+	public const MODULES = array(
+		Modules\Example\Module::class,
+	);
+
+	/**
+	 * Abilities API category shared by every module's abilities.
+	 */
+	public const ABILITY_CATEGORY = 'wp-plugin-starter';
 
 	/**
 	 * The booted instance, so other code can reach the registry.
@@ -80,6 +87,7 @@ final class Plugin {
 	public function register(): void {
 		// Closure so the controller class is only loaded on REST requests.
 		add_action( 'rest_api_init', fn() => ( new Rest\SettingsController( $this->settings ) )->register_routes() );
+		add_action( 'wp_abilities_api_categories_init', array( self::class, 'register_ability_category' ) );
 
 		foreach ( $this->modules as $id => $module ) {
 			if ( $module->is_enabled( $this->settings ) ) {
@@ -87,6 +95,30 @@ final class Plugin {
 				$this->active[] = $id;
 			}
 		}
+	}
+
+	/**
+	 * Register the ability category. Runs on `wp_abilities_api_categories_init`, 6.9+ only.
+	 */
+	public static function register_ability_category(): void {
+		wp_register_ability_category(
+			self::ABILITY_CATEGORY,
+			array(
+				'label'       => __( 'WP Plugin Starter', 'wp-plugin-starter' ),
+				'description' => __( 'Abilities provided by the WP Plugin Starter plugin.', 'wp-plugin-starter' ),
+			)
+		);
+	}
+
+	/**
+	 * Dependencies and version of a wp-scripts build, or null when `npm run build` has not run.
+	 *
+	 * @param string $name Entry name in build/, e.g. `admin`.
+	 * @return array{dependencies: array<mixed>, version: string}|null
+	 */
+	public static function asset( string $name ): ?array {
+		$file = WPS_DIR . "build/{$name}.asset.php";
+		return is_readable( $file ) ? require $file : null;
 	}
 
 	/**

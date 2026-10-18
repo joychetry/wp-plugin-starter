@@ -30,8 +30,8 @@ final class RelatedPosts {
 		$query = new WP_Query(
 			array(
 				'category__in'           => $categories,
-				'post__not_in'           => array( $post_id ),
-				'posts_per_page'         => $count,
+				// One extra instead of post__not_in, which is slow on big sites. The source post is dropped below.
+				'posts_per_page'         => $count + 1,
 				'post_status'            => 'publish',
 				'fields'                 => 'ids',
 				'ignore_sticky_posts'    => true,
@@ -43,7 +43,10 @@ final class RelatedPosts {
 
 		$posts = array();
 		foreach ( $query->posts as $id ) {
-			$id      = (int) $id;
+			$id = (int) $id;
+			if ( $id === $post_id || count( $posts ) === $count ) {
+				continue;
+			}
 			$posts[] = array(
 				'id'    => $id,
 				// Plain text: the front end prints it with data-wp-text, which never parses HTML.

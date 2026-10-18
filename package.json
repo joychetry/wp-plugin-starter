@@ -7,9 +7,10 @@
 	"scripts": {
 		"build": "wp-scripts build --experimental-modules",
 		"start": "wp-scripts start --experimental-modules",
-		"lint:js": "wp-scripts lint-js assets-src webpack.config.js",
+		"lint:js": "wp-scripts lint-js assets-src tests/e2e webpack.config.js",
 		"lint:css": "wp-scripts lint-style \"assets-src/**/*.css\"",
-		"format": "wp-scripts format assets-src webpack.config.js"
+		"format": "wp-scripts format assets-src tests/e2e webpack.config.js",
+		"test:e2e": "playwright test --config tests/e2e/playwright.config.js"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.64.1",
